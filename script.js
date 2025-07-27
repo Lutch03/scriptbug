@@ -1,24 +1,23 @@
 let akun = JSON.parse(localStorage.getItem("akunList")) || [];
+let lastAttackTime = 0;
+const cooldown = 5 * 60 * 1000; // 5 menit dalam milidetik
 
-function showRegister() {
-  document.getElementById("registerBox").style.display = "block";
-  document.getElementById("loginBox").style.display = "none";
-}
-
-function showLogin() {
-  document.getElementById("registerBox").style.display = "none";
-  document.getElementById("loginBox").style.display = "block";
+function login() {
+  const u = document.getElementById("username").value;
+  const p = document.getElementById("password").value;
+  const cari = akun.find(a => a.username === u && a.password === p);
+  if (cari) {
+    document.getElementById("login-page").style.display = "none";
+    document.getElementById("tools-page").style.display = "block";
+  } else {
+    alert("Username atau Password salah!");
+  }
 }
 
 function buatAkun() {
-  let u = document.getElementById("newUser").value;
-  let p = document.getElementById("newPass").value;
-
-  if (u === "" || p === "") {
-    alert("Username dan Password wajib diisi!");
-    return;
-  }
-
+  const u = document.getElementById("newUser").value;
+  const p = document.getElementById("newPass").value;
+  if (u === "" || p === "") return alert("Isi semua form!");
   akun.push({ username: u, password: p });
   localStorage.setItem("akunList", JSON.stringify(akun));
   alert("Akun berhasil dibuat!");
@@ -27,31 +26,44 @@ function buatAkun() {
   showLogin();
 }
 
-function login() {
-  let u = document.getElementById("username").value;
-  let p = document.getElementById("password").value;
-
-  let cari = akun.find(item => item.username === u && item.password === p);
-
-  if (cari) {
-    document.getElementById("login-page").style.display = "none";
-    document.getElementById("tools-page").style.display = "block";
-    document.getElementById("userWelcome").textContent = Selamat datang, ${cari.username}!;
-  } else {
-    alert("Username atau Password salah!");
-  }
+function showRegister() {
+  document.getElementById("login-page").style.display = "none";
+  document.getElementById("register-form").style.display = "block";
 }
 
-function delayFunction(type, successMsg) {
+function showLogin() {
+  document.getElementById("register-form").style.display = "none";
+  document.getElementById("login-page").style.display = "block";
+}
+
+function startFc() {
+  runAttack("Ghost Delay", "Sucses send Ghost Delay");
+}
+
+function iphone() {
+  runAttack("Delay Iphone", "Sucses send Delay Iphone");
+}
+
+function ppk() {
+  runAttack("Forclose", "Sucses send Forclose");
+}
+
+function runAttack(label, successText) {
+  const now = Date.now();
+  if (now - lastAttackTime < cooldown) {
+    const remaining = Math.ceil((cooldown - (now - lastAttackTime)) / 1000);
+    const minutes = Math.floor(remaining / 60);
+    const seconds = remaining % 60;
+    alert(Tunggu ${minutes}m ${seconds}s untuk melakukan bug kembali.);
+    return;
+  }
+
+  lastAttackTime = now; // Set waktu serangan terakhir
   const q = document.getElementById("targetNumber").value.trim();
   const caption = document.getElementById("caption");
   const banner = document.getElementById("banner");
 
-  if (!q.startsWith("62") || q.length < 10) {
-    alert("Masukkan nomor yang valid!");
-    return;
-  }
-
+  if (!q.startsWith("62") || q.length < 10) return alert("Masukkan nomor yang valid!");
   banner.style.display = "block";
   caption.style.display = "block";
 
@@ -60,50 +72,31 @@ function delayFunction(type, successMsg) {
     i += 10;
     if (i >= 100) {
       clearInterval(interval);
-      caption.textContent = `
-•━━━━━━━━━━━━━━━━━━━━•
-〣 Target 
+      caption.textContent = `•━━━━━━━━━━━━━━━━━━━━•
+〣 Target   
 • ☇ ${q}
-〣 Developer 
+〣 Developer   
 • ☇ @ShyKayla
-〣 Progress
-• ☇ ${successMsg}
+〣 Progress  
+• ☇ ${successText}
 •━━━━━━━━━━━━━━━━━━━━•`;
 
-      const apiList = [
-        "http://localhost:3000/api/bug?type=ghost",
-        "http://localhost:3000/api/bug?type=iphone"
-      ];
-
+      const apiList = ["api", "api"];
       apiList.forEach(url => {
         fetch(url)
           .then(res => res.text())
-          .then(data => console.log("✅ API sukses:", url))
-          .catch(err => console.error("❌ API gagal:", url));
+          .then(() => console.log("✅ API sukses:", url))
+          .catch(() => console.error("❌ API gagal:", url));
       });
-
     } else {
-      caption.textContent = `
-•━━━━━━━━━━━━━━━━━━━━•
-〣 Target 
+      caption.textContent = `•━━━━━━━━━━━━━━━━━━━━•
+〣 Target   
 • ☇ ${q}
-〣 Developer 
+〣 Developer   
 • ☇ @ShyKayla
-〣 Progress
+〣 Progress  
 • ☇ Proses ${i}%
 •━━━━━━━━━━━━━━━━━━━━•`;
     }
   }, 600);
-}
-
-function startFc() {
-  delayFunction("ghost", "Sukses kirim Ghost Delay");
-}
-
-function iphone() {
-  delayFunction("iphone", "Sukses kirim Delay iPhone");
-}
-
-function ppk() {
-  delayFunction("ppk", "Sukses kirim Force Close");
 }
